@@ -1,0 +1,27 @@
+Package: IsoRankershiny
+Title: IsoRanker browser
+Version: 1.0
+Authors@R: 
+    person("Adriana", "Sedeno Cortes", , "asedeno@uw.edu", role = c("aut", "cre"))
+Description: IsoRankershiny is a Shiny application for transcript analysis
+    that provides interactive data exploration tools.
+License: MIT + file LICENSE
+Imports:
+    bsicons,
+    config,
+    DT,
+    golem,
+    htmltools,
+    magrittr,
+    plotly,
+    shiny,
+    shinydashboard,
+    shinyFiles,
+    shinyhelper,
+    shinyjs,
+    skimr,
+    tools,
+    utils
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
