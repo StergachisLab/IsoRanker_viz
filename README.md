@@ -10,7 +10,7 @@ IsoRanker_viz provides two versions for visualizing data:
 Install the R package from the provided tar.gz file in the repository:
 
 ```r
-install.packages("../IsoRankershiny_1.0.tar.gz", repos = NULL, type = "source")
+install.packages("../IsoRankershiny_1.0.tar.gz", repos = NULL, type = "source", dependencies = TRUE)
 ```
 
 After installation, set up an environment variable *ISORANKER_OUTPUT_DIR*, which is the path to the IsoRanker Output directory where the csv files reside.
