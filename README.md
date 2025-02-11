@@ -7,7 +7,7 @@ IsoRanker_viz provides two versions for visualizing data:
 ## Installation and Usage
 
 ### **R Shiny App**
-To install the R package from the provided tar.gz file in the repository:
+Install the R package from the provided tar.gz file in the repository:
 
 ```r
 install.packages("../IsoRankershiny_1.0.tar.gz", repos = NULL, type = "source")
