@@ -1,7 +1,3 @@
-
-if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
-renv::restore()
-
 #' Run the Shiny Application
 #'
 #' @export
