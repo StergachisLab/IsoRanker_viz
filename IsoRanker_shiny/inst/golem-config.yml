@@ -2,6 +2,22 @@ default:
   golem_name: IsoRankershiny
   golem_version: 0.0.0.9000
   app_prod: no
+  dependencies:
+    - bsicons
+    - config
+    - DT
+    - golem
+    - htmltools
+    - magrittr
+    - plotly
+    - shiny
+    - shinydashboard
+    - shinyFiles
+    - shinyhelper
+    - shinyjs
+    - skimr
+    - tools
+    - utils
 
 production:
   app_prod: yes

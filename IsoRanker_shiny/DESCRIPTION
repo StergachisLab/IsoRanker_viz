@@ -6,7 +6,8 @@ Authors@R:
 Description: IsoRankershiny is a Shiny application for transcript analysis
     that provides interactive data exploration tools.
 License: MIT + file LICENSE
-Depends:
+Imports:
+    R (>= 3.5.0),
     bsicons,
     config,
     DT,
