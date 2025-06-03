@@ -1,5 +1,9 @@
 # IsoRanker_viz
 
+<p align="center">
+  <img src="isoranker_viz.png" alt="IsoSeq_smk Logo" width="300"/>
+</p>
+
 1. **Shiny App (R Package)** - A Shiny-based interactive visualization tool provided as an R package.
 
 ## Installation and Usage
