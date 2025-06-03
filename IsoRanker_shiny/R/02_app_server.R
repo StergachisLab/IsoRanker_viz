@@ -12,6 +12,7 @@
 #' @importFrom DT datatable renderDT
 #' @importFrom skimr skim
 #' @importFrom utils head read.csv
+#' @importFrom readr read_tsv
 #' @importFrom magrittr %>%
 #' @importFrom plotly plot_ly renderPlotly plotlyOutput layout
 #' @importFrom skimr skim
@@ -42,21 +43,21 @@ app_server <- function(input, output, session) {
 
   load_data_from_directory <- function(dir_path) {
     file_paths <- list.files(path = dir_path,
-                             pattern = "\\.csv$",
+                             pattern = "\\.tsv\\.gz$",
                              full.names = TRUE,
                              recursive = TRUE,
                              ignore.case = TRUE)
     if (length(file_paths) == 0) {
       showModal(modalDialog(
         title = "No Files Found",
-        "No CSV files were found in the selected directory.",
+        "No TSV files were found in the selected directory.",
         easyClose = TRUE
       ))
       return(NULL)
     }
     data_list <- lapply(file_paths, function(file) {
       tryCatch({
-        read.csv(file, stringsAsFactors = FALSE)
+        readr::read_tsv(file)
       }, error = function(e) {
         showModal(modalDialog(
           title = "File Read Error",
@@ -67,7 +68,8 @@ app_server <- function(input, output, session) {
       })
     })
     data_list <- data_list[!sapply(data_list, is.null)]
-    names(data_list) <- tools::file_path_sans_ext(basename(file_paths))[!sapply(data_list, is.null)]
+    #names(data_list) <- tools::file_path_sans_ext(basename(file_paths))[!sapply(data_list, is.null)]
+    names(data_list) <- sub("\\.tsv\\.gz$", "", basename(file_paths))
     loadedData(data_list)
   }
 
@@ -108,8 +110,7 @@ app_server <- function(input, output, session) {
   output$skim_summary <- renderDT({
     req(loadedData(), input$df_choice)
     df <- loadedData()[[input$df_choice]]
-    sk <- skim(df)
-    sk_df <- as.data.frame(sk)
+    sk_df <- skim(as.data.frame(df))
     datatable(
       sk_df,
       rownames = FALSE,
@@ -131,7 +132,7 @@ app_server <- function(input, output, session) {
     req(loadedData(), input$df_choice)
     df <- loadedData()[[input$df_choice]]
     datatable(
-      head(df, 100),
+      head(df, 50),
       rownames = FALSE,
       filter = "top",
       selection = "none",
@@ -150,6 +151,8 @@ app_server <- function(input, output, session) {
   # --- Module Integration ---
   callModule(module1Server, "mod1", data = reactive(loadedData()))
   callModule(module2Server, "mod2", data = reactive(loadedData()))
+  callModule(module3Server, "mod3", data = reactive(loadedData()))
+  
 }
 
 # Run the app

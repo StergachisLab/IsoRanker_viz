@@ -110,11 +110,6 @@ module2Server <- function(input, output, session, data) {
     updateTextInput(session, ns("find_gene"), value = state$input$find_gene)
   })
 
-  # Initialize Bootstrap tooltips
-  observe({
-    session$sendCustomMessage(type = 'tooltip', message = list(selector = '[data-toggle="tooltip"]'))
-  })
-
   # Update the 'Select Sample' input based on the matching NMD Decay file.
   observe({
     req(data())
@@ -122,9 +117,9 @@ module2Server <- function(input, output, session, data) {
     trans <- input$nmd_transcripts
     # Define file choices based on transcript type:
     if (trans == "Gene") {
-      matches <- c("NMD_gene_data", "NMD_rare_steady_state_transcript_gene_data")
+      matches <- c("NMD_gene_top_ranked_data.", "NMD_rare_steady_state_transcript_gene_top_ranked_data")
     } else {
-      matches <- c("NMD_isoform_data")
+      matches <- c("NMD_isoform_top_ranked_data")
     }
     # Only consider those matches that exist in the loaded data.
     matches <- intersect(matches, names(data()))
@@ -162,12 +157,12 @@ module2Server <- function(input, output, session, data) {
     req(rd)
     if (rd$nmd_transcripts == "Gene") {
       if (rd$select_criteria == "Uniquely") {
-        return(data()[["NMD_gene_data"]])
+        return(data()[["NMD_gene_top_ranked_data"]])
       } else if (rd$select_criteria == "Rare") {
-        return(data()[["NMD_rare_steady_state_transcript_gene_data"]])
+        return(data()[["NMD_rare_steady_state_transcript_gene_top_ranked_data"]])
       }
     } else if (rd$nmd_transcripts == "Isoform") {
-      return(data()[["NMD_isoform_data"]])
+      return(data()[["NMD_isoform_top_ranked_data"]])
     }
     NULL
   })
@@ -198,7 +193,7 @@ module2Server <- function(input, output, session, data) {
     if (rd$nmd_transcripts == "Gene" && rd$select_criteria == "Rare") {
       "bin_proportion_difference"
     } else {
-      "NormalizedFractionDifference"
+      "z_score_of_test_stat"
     }
   })
 

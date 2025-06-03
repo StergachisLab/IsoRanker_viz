@@ -11,7 +11,7 @@ info_icon_with_tooltip <- function(text) {
   )
 }
 
-# The objects below are used in your module code.
+# The objects below are used in the module code.
 # In practice, you'll load/assign them dynamically after the user provides a path.
 isoforms <- list()           # placeholder
 labeling_hank <- data.frame(

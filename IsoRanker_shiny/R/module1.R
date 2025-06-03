@@ -4,8 +4,6 @@ module1UI <- function(id) {
     column(
       width = 12,
       h4("Expression Outliers Analysis (LOE/GOE)"),
-
-      # First row: Criteria selection
       fluidRow(
         column(
           width = 4,
@@ -83,7 +81,7 @@ module1UI <- function(id) {
 module1Server <- function(input, output, session, data) {
   ns <- session$ns
 
-  # (Optional) Restore input states for bookmarking
+  # Restore input states for bookmarking
   onRestore(function(state) {
     updateSelectInput(session, ns("select_criteria"), selected = state$input$select_criteria)
     updateSelectInput(session, ns("expression_outliers"), selected = state$input$expression_outliers)
@@ -92,10 +90,6 @@ module1Server <- function(input, output, session, data) {
     updateTextInput(session, ns("find_gene"), value = state$input$find_gene)
   })
 
-  # Initialize Bootstrap tooltips
-  observe({
-    session$sendCustomMessage(type = 'tooltip', message = list(selector = '[data-toggle="tooltip"]'))
-  })
 
   # Update sample choices based on the files that match the criteria
   observe({
@@ -103,7 +97,7 @@ module1Server <- function(input, output, session, data) {
     # Build a pattern from criteria and outlier type.
     crit <- input$select_criteria       # "LOE" or "GOE"
     outlier <- input$expression_outliers  # "Gene" or "Isoform"
-    pattern <- paste0("^(Cyclo|Noncyclo)_", crit, "_", tolower(outlier), "_data")
+    pattern <- paste0("^(Cyclo|Noncyclo)_", crit, "_", tolower(outlier), "_top_ranked_data")
     matches <- grep(pattern, names(data()), value = TRUE, ignore.case = TRUE)
     if (length(matches) > 0) {
       samples <- unique(unlist(lapply(matches, function(name) {
@@ -124,7 +118,7 @@ module1Server <- function(input, output, session, data) {
     crit <- input$select_criteria
     outlier <- input$expression_outliers
     # Build filename pattern, e.g., "Cyclo_GOE_gene_data" or "Noncyclo_LOE_isoform_data"
-    pattern <- paste0("^", prefix, "_", crit, "_", tolower(outlier), "_data")
+    pattern <- paste0("^", prefix, "_", crit, "_", tolower(outlier), "_top_ranked_data")
     matched_names <- grep(pattern, names(data()), value = TRUE, ignore.case = TRUE)
     if (length(matched_names) == 0) return(NULL)
 
@@ -178,7 +172,7 @@ module1Server <- function(input, output, session, data) {
     do.call(tabsetPanel, tabs)
   })
 
-  # Render the tables UI dynamically.
+  # Render the tables UI 
   output$tables_ui <- renderUI({
     pd <- render_data()
     tabs <- list()
@@ -194,57 +188,53 @@ module1Server <- function(input, output, session, data) {
     do.call(tabsetPanel, tabs)
   })
 
-  # Render Cyclo Plot (if available) using snapshot inputs
+  # Reusable function to generate plot
+  render_zscore_plot <- function(df, title_prefix, select_criteria, expression_outliers, color) {
+    req(!is.null(df))
+    req("z_score_of_test_stat" %in% names(df))
+    
+    df$X_Value <- df[["z_score_of_test_stat"]]
+    
+    plot_ly(
+      data = df,
+      x = ~X_Value,
+      y = ~test_statistic,
+      type = 'scatter',
+      mode = 'markers',
+      marker = list(size = 10, color = color),
+      text = ~paste("Sample:", Sample, "<br>Gene:", associated_gene)
+    ) %>%
+      layout(
+        title = paste(title_prefix, "-", select_criteria, expression_outliers),
+        xaxis = list(title = "Z Score"),
+        yaxis = list(title = "Test Statistic")
+      )
+  }
+  
+  # Cyclo Plot
   output$cyclo_plot <- renderPlotly({
     pd <- render_data()
-    req(!is.null(pd$cyclo))
-    df <- pd$cyclo
-    if (!"Cyclo_Z_Score" %in% names(df)) {
-      showNotification("Cyclo_Z_Score column not found.", type = "error")
-      return(NULL)
-    }
-    df$X_Value <- df[["Cyclo_Z_Score"]]
-    plot_ly(
-      data = df,
-      x = ~X_Value,
-      y = ~test_statistic,
-      type = 'scatter',
-      mode = 'markers',
-      marker = list(size = 10, color = 'rgba(255, 99, 132, 0.6)'),
-      text = ~paste("Sample:", Sample, "<br>Gene:", associated_gene)
-    ) %>%
-      layout(
-        title = paste("Cyclo Plot -", pd$select_criteria, pd$expression_outliers),
-        xaxis = list(title = "Cyclo Z Score"),
-        yaxis = list(title = "Test Statistic")
-      )
+    render_zscore_plot(
+      df = pd$cyclo,
+      title_prefix = "Cyclo Plot",
+      select_criteria = pd$select_criteria,
+      expression_outliers = pd$expression_outliers,
+      color = 'rgba(255, 99, 132, 0.6)'
+    )
   })
-
-  # Render Noncyclo Plot using snapshot inputs
+  
+  # Noncyclo Plot
   output$noncyclo_plot <- renderPlotly({
     pd <- render_data()
-    req(!is.null(pd$noncyclo))
-    df <- pd$noncyclo
-    if (!"Noncyclo_Z_Score" %in% names(df)) {
-      showNotification("Noncyclo_Z_Score column not found.", type = "error")
-      return(NULL)
-    }
-    df$X_Value <- df[["Noncyclo_Z_Score"]]
-    plot_ly(
-      data = df,
-      x = ~X_Value,
-      y = ~test_statistic,
-      type = 'scatter',
-      mode = 'markers',
-      marker = list(size = 10, color = 'rgba(54, 162, 235, 0.6)'),
-      text = ~paste("Sample:", Sample, "<br>Gene:", associated_gene)
-    ) %>%
-      layout(
-        title = paste("Noncyclo Plot -", pd$select_criteria, pd$expression_outliers),
-        xaxis = list(title = "Noncyclo Z Score"),
-        yaxis = list(title = "Test Statistic")
-      )
+    render_zscore_plot(
+      df = pd$noncyclo,
+      title_prefix = "Noncyclo Plot",
+      select_criteria = pd$select_criteria,
+      expression_outliers = pd$expression_outliers,
+      color = 'rgba(54, 162, 235, 0.6)'
+    )
   })
+  
 
   # Render Cyclo Table
   output$cyclo_table <- DT::renderDT({

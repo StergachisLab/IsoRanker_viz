@@ -19,7 +19,8 @@ app_ui <- function(request) {
       sidebarMenu(
         menuItem("Data Summary & Preview", tabName = "summary", icon = icon("table")),
         menuItem("Expression Outliers", tabName = "expr", icon = icon("chart-line")),
-        menuItem("NMD Decay Analysis", tabName = "nmd", icon = icon("chart-area"))
+        menuItem("NMD Decay Analysis", tabName = "nmd", icon = icon("chart-area")),
+        menuItem("Allelic Imbalance", tabName = "ai", icon = icon("balance-scale"))
       )
     ),
     dashboardBody(
@@ -67,6 +68,10 @@ app_ui <- function(request) {
         tabItem(
           tabName = "nmd",
           module2UI("mod2")
+        ),
+        tabItem(
+          tabName = "ai",
+          module3UI("mod3")
         )
       )
     )
